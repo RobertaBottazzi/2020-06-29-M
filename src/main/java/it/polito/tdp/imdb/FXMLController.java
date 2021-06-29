@@ -67,7 +67,17 @@ public class FXMLController {
 
     @FXML
     void doRicorsione(ActionEvent event) {
-
+    	this.txtResult.clear();
+    	Director director=this.boxRegista.getValue();
+    	if(director==null) {
+    		this.txtResult.setText("Selezionare un regista");
+    		return;
+    	}
+    	int attoriCondivisi=Integer.parseInt(this.txtAttoriCondivisi.getText());
+    	this.txtResult.appendText("Cammino: "+"\n");
+    	for(Director d: this.model.trovaPercorso(attoriCondivisi, director)) {
+    		this.txtResult.appendText(d.toString()+"\n");
+    	}
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete

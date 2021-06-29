@@ -18,6 +18,7 @@ public class Model {
 	private SimpleWeightedGraph<Director, DefaultWeightedEdge> grafo;
 	private Map<Integer, Director> idMap;
 	private ImdbDAO dao;
+	private List<Director> percorsoMassimo;
 	
 	public Model() {
 		this.dao= new ImdbDAO();
@@ -40,6 +41,35 @@ public class Model {
 		}
 		result.sort(Comparator.comparing(RegistiAdiacenti:: getPeso).reversed());
 		return result;
+	}
+	
+	public List<Director> trovaPercorso(int attoriCondivisi, Director director){
+		this.percorsoMassimo = new ArrayList<>();
+		List<Director> parziale=new ArrayList<>();
+		int sommaPesi=0;
+		parziale.add(director);
+		cerca(attoriCondivisi, parziale, sommaPesi);
+		return percorsoMassimo;
+	}
+	
+	private void cerca(int attoriCondivisi, List<Director> parziale, int sommaPesi) {
+		if(sommaPesi>attoriCondivisi)
+			return;
+		if(parziale.size()>percorsoMassimo.size()) {
+			this.percorsoMassimo=new ArrayList<>(parziale);
+			//return;
+		}
+		
+		Director ultimo=parziale.get(parziale.size()-1);
+		for(Director d: Graphs.neighborListOf(this.grafo, ultimo)) {
+			sommaPesi+=this.grafo.getEdgeWeight(this.grafo.getEdge(d, ultimo));
+			if(!parziale.contains(d)) {
+				parziale.add(d);
+				cerca(attoriCondivisi,parziale, sommaPesi);
+				parziale.remove(parziale.size()-1);
+				sommaPesi-=this.grafo.getEdgeWeight(this.grafo.getEdge(d, ultimo));
+			}
+		}
 	}
 	
 	public SimpleWeightedGraph<Director, DefaultWeightedEdge> getGrafo(){
